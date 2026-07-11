@@ -1,11 +1,11 @@
 name: Update Oil Prices
 
 on:
-  schedule:
-    # Toutes les 30 min, 6h-22h UTC, du lundi au vendredi
-    # (marché pétrolier actif quasi 24h/24 mais on limite pour épargner le quota Actions)
-    - cron: '7,37 6-22 * * 1-5'
   workflow_dispatch: {}
+  schedule:
+    # Filet de sécurité seulement (au cas où le déclencheur externe
+    # cron-job.org tombe en panne) — pas la fréquence réelle attendue.
+    - cron: '17 */3 * * *'
 
 permissions:
   contents: write
