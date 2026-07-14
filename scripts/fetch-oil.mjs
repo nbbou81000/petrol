@@ -66,6 +66,39 @@ function buildSparklinePoints(values, width = 200, height = 44, pad = 3) {
     .join(' ');
 }
 
+// Génère toute la géométrie prête à l'emploi pour la vue "Graphiques" :
+// tracé de ligne, aplat de zone, et coordonnées du dernier point (marqueur).
+// viewBox fixe 0 0 200 90 — le template Liquid n'a qu'à interpoler les
+// chaînes directement, sans logique de calcul côté Liquid.
+function buildChartGeometry(values, width = 200, height = 90, padTop = 6, padBottom = 6) {
+  if (!values || values.length < 2) return null;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const stepX = width / (values.length - 1);
+
+  const pts = values.map((v, i) => {
+    const x = i * stepX;
+    const y = padTop + (height - padTop - padBottom) * (1 - (v - min) / range);
+    return [Number(x.toFixed(1)), Number(y.toFixed(1))];
+  });
+
+  const linePath = pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0] + ' ' + p[1]).join(' ');
+  const last = pts[pts.length - 1];
+  const first = pts[0];
+  const areaPath = `${linePath} L ${last[0]} ${height} L ${first[0]} ${height} Z`;
+
+  return {
+    view_box: `0 0 ${width} ${height}`,
+    line_path: linePath,
+    area_path: areaPath,
+    last_x: last[0],
+    last_y: last[1],
+    min: round2(min),
+    max: round2(max),
+  };
+}
+
 async function buildAsset(symbol) {
   const result = await fetchSeries(symbol);
   const meta = result.meta || {};
@@ -92,9 +125,10 @@ async function buildAsset(symbol) {
   const low52w = Math.min(...values);
   const high52w = Math.max(...values);
 
-  // Sparkline sur les 30 dernières séances
+  // Sparkline / graphique sur les 30 dernières séances
   const sparkValues = values.slice(-30);
   const sparklinePoints = buildSparklinePoints(sparkValues);
+  const chart = buildChartGeometry(sparkValues);
 
   return {
     symbol,
@@ -107,6 +141,7 @@ async function buildAsset(symbol) {
     low_52w: round2(low52w),
     high_52w: round2(high52w),
     sparkline_points: sparklinePoints,
+    chart,
     trend: dayChange >= 0 ? 'up' : 'down',
   };
 }
