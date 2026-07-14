@@ -72,9 +72,13 @@ async function buildAsset(symbol) {
   const pairs = cleanCloses(result);
   const values = pairs.map((p) => p.c);
 
+  // On utilise toujours l'avant-dernière clôture de notre propre série
+  // (values[length-2]) plutôt que meta.previousClose / chartPreviousClose.
+  // Ces champs Yahoo peuvent référencer une session désynchronisée
+  // (ex: clôture d'il y a 2 jours sur les futures qui tradent quasi 24h/24),
+  // ce qui double artificiellement le "day_change_pct" calculé.
   const current = meta.regularMarketPrice ?? values[values.length - 1];
-  const prevClose =
-    meta.previousClose ?? meta.chartPreviousClose ?? values[values.length - 2];
+  const prevClose = values[values.length - 2] ?? meta.previousClose ?? meta.chartPreviousClose;
 
   const dayChange = current - prevClose;
   const dayChangePct = pctChange(current, prevClose);
