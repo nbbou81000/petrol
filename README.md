@@ -4,8 +4,7 @@ Crude oil prices on your TRMNL e-ink display: WTI and Brent, with daily/weekly/m
 
 Published as a public TRMNL recipe: **[trmnl.com/recipes/375844](https://trmnl.com/recipes/375844)**
 
-<!-- Add a screenshot of the rendered plugin here, then uncomment: -->
-<!-- ![Oil Price Tracker on TRMNL](docs/screenshot.png) -->
+![Oil Price Tracker on TRMNL](https://trmnl-public.s3.us-east-2.amazonaws.com/7i5dayr509sydoqcic3d153jnutz)
 
 ## How it works
 
